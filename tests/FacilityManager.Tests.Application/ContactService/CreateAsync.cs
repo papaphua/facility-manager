@@ -24,6 +24,7 @@ public sealed class CreateAsync
         _equipmentRepositoryMock = new Mock<IEquipmentRepository>();
         _contractRepositoryMock = new Mock<IContractRepository>();
         Mock<IUnitOfWork> unitOfWorkMock = new();
+        Mock<IBackgroundTaskQueue> taskQueueMock = new();
 
         var config = new MapperConfiguration(cfg => cfg.CreateMap<ContractCreationDto, Contract>());
         var mapper = config.CreateMapper();
@@ -33,7 +34,9 @@ public sealed class CreateAsync
             unitOfWorkMock.Object,
             _facilityRepositoryMock.Object,
             _equipmentRepositoryMock.Object,
-            _contractRepositoryMock.Object);
+            _contractRepositoryMock.Object,
+            taskQueueMock.Object
+        );
 
         _dto = new ContractCreationDto(
             Guid.NewGuid(),

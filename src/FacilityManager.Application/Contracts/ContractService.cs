@@ -5,6 +5,7 @@ using FacilityManager.Domain.Core.Paging;
 using FacilityManager.Domain.Core.Results;
 using FacilityManager.Domain.Equipments;
 using FacilityManager.Domain.Facilities;
+using Serilog;
 
 namespace FacilityManager.Application.Contracts;
 
@@ -13,7 +14,8 @@ public sealed class ContractService(
     IUnitOfWork unitOfWork,
     IFacilityRepository facilityRepository,
     IEquipmentRepository equipmentRepository,
-    IContractRepository contractRepository)
+    IContractRepository contractRepository,
+    IBackgroundTaskQueue taskQueue)
     : IContractService
 {
     public async Task<Result> CreateAsync(ContractCreationDto dto)
@@ -53,6 +55,8 @@ public sealed class ContractService(
             return ContractErrors.CreateError;
         }
 
+        await taskQueue.QueueBackgroundWorkItemAsync(DoCounting);
+
         return Result.Success();
     }
 
@@ -64,5 +68,18 @@ public sealed class ContractService(
         // Required to retrieve back paging information.
         // If PagingQuery was not provided, it will still contain info indicating that there is only one page.
         return dtos.AsPagedList(contracts.Info);
+    }
+
+    private static async ValueTask DoCounting(CancellationToken token)
+    {
+        var counter = 0;
+
+        while (!token.IsCancellationRequested && counter <= 5)
+        {
+            Log.Information("Counting: {Counter}", counter++);
+            await Task.Delay(1000, token);
+        }
+
+        Log.Information("Counter stopped.");
     }
 }

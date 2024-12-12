@@ -1,4 +1,5 @@
-﻿using FacilityManager.App.Startup;
+﻿using FacilityManager.App.BackgroundServices;
+using FacilityManager.App.Startup;
 using FacilityManager.Application.Core;
 using FacilityManager.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,10 @@ public static class HostingExtensions
 
         builder.Services.AddAutoMapper(options =>
             options.AddMaps(Application.AssemblyReference.Assembly));
+
+        builder.Services.AddHostedService<QueuedHostedService>();
+
+        builder.Services.AddSingleton<IBackgroundTaskQueue>(_ => new BackgroundTaskQueue(100));
 
         return builder.Build();
     }

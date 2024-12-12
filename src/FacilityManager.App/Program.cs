@@ -24,6 +24,10 @@ try
 
     app.Run();
 }
+catch (OperationCanceledException ex)
+{
+    Log.Warning(ex, "Operation was canceled");
+}
 catch (Exception ex) when (ex.GetType().Name is not "StopTheHostException" &&
                            ex is not HostAbortedException)
 {
