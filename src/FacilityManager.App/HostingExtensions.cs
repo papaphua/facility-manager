@@ -1,8 +1,11 @@
-﻿using FacilityManager.App.BackgroundServices;
+﻿using FacilityManager.App.Authentication;
+using FacilityManager.App.BackgroundServices;
 using FacilityManager.App.Startup;
 using FacilityManager.Application.Core;
 using FacilityManager.Persistence;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using AssemblyReference = FacilityManager.Presentation.AssemblyReference;
 
 namespace FacilityManager.App;
@@ -14,8 +17,37 @@ public static class HostingExtensions
         builder.Services.AddControllers()
             .AddApplicationPart(AssemblyReference.Assembly);
 
+        builder.Services.AddAuthentication(options => { options.DefaultScheme = "ApiKey"; })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
+
+        builder.Services.AddAuthorizationBuilder()
+            .AddPolicy("ApiKeyPolicy", policy => policy.RequireAuthenticatedUser());
+
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Name = "ApiKey",
+                Type = SecuritySchemeType.ApiKey
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "ApiKey"
+                        }
+                    },
+                    []
+                }
+            });
+        });
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -44,7 +76,11 @@ public static class HostingExtensions
             app.UseSwaggerUI();
         }
 
-        app.MapControllers();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.MapControllers()
+            .RequireAuthorization();
 
         app.Run();
 

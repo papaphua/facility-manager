@@ -1,3 +1,4 @@
+using DotNetEnv;
 using FacilityManager.App;
 using Serilog;
 
@@ -9,6 +10,8 @@ Log.Information("Starting up");
 
 try
 {
+    Env.Load();
+
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseSerilog((ctx, lc) => lc
