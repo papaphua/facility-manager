@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>FacilityManager.App</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FacilityManager.Application\FacilityManager.Application.csproj"/>
+        <ProjectReference Include="..\FacilityManager.Domain\FacilityManager.Domain.csproj"/>
+        <ProjectReference Include="..\FacilityManager.Persistence\FacilityManager.Persistence.csproj"/>
+        <ProjectReference Include="..\FacilityManager.Presentation\FacilityManager.Presentation.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Scrutor" Version="5.0.1"/>
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
+    </ItemGroup>
+
+</Project>
