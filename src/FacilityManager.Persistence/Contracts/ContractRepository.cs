@@ -11,13 +11,6 @@ public sealed class ContractRepository(ApplicationDbContext db)
 {
     private readonly ApplicationDbContext _db = db;
 
-    public async Task<Contract?> GetByCodesAsync(Guid facilityCode, Guid equipmentCode)
-    {
-        return await _db.Set<Contract>()
-            .FirstOrDefaultAsync(contract => contract.FacilityCode == facilityCode &&
-                                             contract.EquipmentCode == equipmentCode);
-    }
-
     public async Task<List<Contract>> GetAllByFacilityCodeAsync(Guid facilityCode,
         bool includeEquipment = false)
     {

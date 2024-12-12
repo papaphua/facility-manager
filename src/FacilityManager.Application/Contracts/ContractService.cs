@@ -18,6 +18,9 @@ public sealed class ContractService(
 {
     public async Task<Result> CreateAsync(ContractCreationDto dto)
     {
+        if (dto.Amount <= 0)
+            return ContractErrors.AmountError;
+
         var facility = await facilityRepository.GetAsync(dto.FacilityCode);
 
         if (facility is null)
@@ -27,11 +30,6 @@ public sealed class ContractService(
 
         if (equipment is null)
             return EquipmentErrors.NotFound;
-
-        var existingContract = await contractRepository.GetByCodesAsync(dto.FacilityCode, dto.EquipmentCode);
-
-        if (existingContract is not null)
-            return ContractErrors.AlreadyExists;
 
         var contracts = await contractRepository
             .GetAllByFacilityCodeAsync(dto.FacilityCode, true);

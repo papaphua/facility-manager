@@ -8,7 +8,7 @@ public sealed class ContractConfiguration : IEntityTypeConfiguration<Contract>
 {
     public void Configure(EntityTypeBuilder<Contract> builder)
     {
-        builder.HasKey(contract => new { contract.FacilityCode, contract.EquipmentCode });
+        builder.HasKey(contract => contract.Id);
 
         builder
             .HasOne(contract => contract.Facility)

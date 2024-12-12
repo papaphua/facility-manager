@@ -6,6 +6,8 @@ namespace FacilityManager.Domain.Contracts;
 
 public sealed class Contract : IEntity
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
+
     public Guid FacilityCode { get; set; }
 
     public Guid EquipmentCode { get; set; }
