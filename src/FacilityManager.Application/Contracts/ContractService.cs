@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FacilityManager.Application.Core;
 using FacilityManager.Domain.Contracts;
+using FacilityManager.Domain.Core.Paging;
 using FacilityManager.Domain.Core.Results;
 using FacilityManager.Domain.Equipments;
 using FacilityManager.Domain.Facilities;
@@ -15,7 +16,7 @@ public sealed class ContractService(
     IContractRepository contractRepository)
     : IContractService
 {
-    public async Task<Result> CreateAsync(ContractDto dto)
+    public async Task<Result> CreateAsync(ContractCreationDto dto)
     {
         var facility = await facilityRepository.GetAsync(dto.FacilityCode);
 
@@ -55,5 +56,15 @@ public sealed class ContractService(
         }
 
         return Result.Success();
+    }
+
+    public async Task<Result<PagedList<ContractDetailsDto>>> GetAllAsync(PagingQuery? paging)
+    {
+        var contracts = await contractRepository.GetAllAsync(paging);
+        var dtos = contracts.Select(mapper.Map<ContractDetailsDto>);
+
+        // Required to retrieve back paging information.
+        // If PagingQuery was not provided, it will still contain info indicating that there is only one page.
+        return dtos.AsPagedList(contracts.Info);
     }
 }
