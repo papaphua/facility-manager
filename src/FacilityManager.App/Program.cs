@@ -1,3 +1,4 @@
+using DotNetEnv;
 using FacilityManager.App;
 using Serilog;
 
@@ -9,6 +10,8 @@ Log.Information("Starting up");
 
 try
 {
+    Env.Load();
+
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseSerilog((ctx, lc) => lc
@@ -23,6 +26,10 @@ try
         .ConfigurePipeline();
 
     app.Run();
+}
+catch (OperationCanceledException ex)
+{
+    Log.Warning(ex, "Operation was canceled");
 }
 catch (Exception ex) when (ex.GetType().Name is not "StopTheHostException" &&
                            ex is not HostAbortedException)
