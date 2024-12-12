@@ -5,7 +5,7 @@ namespace FacilityManager.Domain.Equipments;
 
 public sealed class Equipment : IEntity
 {
-    public Guid Code { get; set; }
+    public Guid Code { get; set; } = Guid.NewGuid();
 
     public string Name { get; set; }
 

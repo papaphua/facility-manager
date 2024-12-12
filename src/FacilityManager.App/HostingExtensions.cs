@@ -16,7 +16,6 @@ public static class HostingExtensions
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -41,8 +40,6 @@ public static class HostingExtensions
         }
 
         app.MapControllers();
-
-        app.UseRateLimiter();
 
         app.Run();
 

@@ -2,4 +2,7 @@
 
 namespace FacilityManager.Domain.Facilities;
 
-public interface IFacilityRepository : IRepository<Facility>;
+public interface IFacilityRepository : IRepository<Facility>
+{
+    Task<Facility?> GetAsync(Guid code);
+}

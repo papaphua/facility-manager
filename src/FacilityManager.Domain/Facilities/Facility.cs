@@ -5,7 +5,7 @@ namespace FacilityManager.Domain.Facilities;
 
 public sealed class Facility : IEntity
 {
-    public Guid Code { get; set; }
+    public Guid Code { get; set; } = Guid.NewGuid();
 
     public string Name { get; set; }
 

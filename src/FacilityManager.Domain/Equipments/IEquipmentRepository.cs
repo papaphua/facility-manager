@@ -2,4 +2,7 @@
 
 namespace FacilityManager.Domain.Equipments;
 
-public interface IEquipmentRepository : IRepository<Equipment>;
+public interface IEquipmentRepository : IRepository<Equipment>
+{
+    Task<Equipment?> GetAsync(Guid code);
+}
