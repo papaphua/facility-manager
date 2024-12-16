@@ -6,25 +6,31 @@ using FacilityManager.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using AssemblyReference = FacilityManager.Presentation.AssemblyReference;
 
 namespace FacilityManager.App;
 
-public static class HostingExtensions
+public sealed class LambdaStartup
 {
-    public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
+    public LambdaStartup(IConfiguration configuration)
     {
-        builder.Services.AddControllers()
+        Configuration = configuration;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers()
             .AddApplicationPart(AssemblyReference.Assembly);
 
-        builder.Services.AddAuthentication(options => { options.DefaultScheme = "ApiKey"; })
+        services.AddAuthentication(options => { options.DefaultScheme = "ApiKey"; })
             .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
 
-        builder.Services.AddAuthorizationBuilder()
+        services.AddAuthorizationBuilder()
             .AddPolicy("ApiKeyPolicy", policy => policy.RequireAuthenticatedUser());
 
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options =>
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(options =>
         {
             options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
             {
@@ -49,41 +55,37 @@ public static class HostingExtensions
             });
         });
 
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Environment.GetEnvironmentVariable("CONNECTION_STRING")));
 
-        builder.Services.AddScoped<IUnitOfWork>(provider =>
+        services.AddScoped<IUnitOfWork>(provider =>
             provider.GetRequiredService<ApplicationDbContext>());
 
-        builder.Services.RegisterRepositories();
-        builder.Services.RegisterServices();
+        services.RegisterRepositories();
+        services.RegisterServices();
 
-        builder.Services.AddAutoMapper(options =>
+        services.AddAutoMapper(options =>
             options.AddMaps(Application.AssemblyReference.Assembly));
 
-        builder.Services.AddHostedService<QueuedHostedService>();
+        services.AddHostedService<QueuedHostedService>();
 
-        builder.Services.AddSingleton<IBackgroundTaskQueue>(_ => new BackgroundTaskQueue(100));
-
-        return builder.Build();
+        services.AddSingleton<IBackgroundTaskQueue>(_ => new BackgroundTaskQueue(100));
     }
 
-    public static WebApplication ConfigurePipeline(this WebApplication app)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+        app.UseSwagger();
+        app.UseSwaggerUI();
+
+        app.UseRouting();
 
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapControllers()
-            .RequireAuthorization();
-
-        app.Run();
-
-        return app;
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers()
+                .RequireAuthorization();
+        });
     }
 }

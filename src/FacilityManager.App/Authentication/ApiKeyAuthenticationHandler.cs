@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
-using DotNetEnv;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -13,7 +12,7 @@ public sealed class ApiKeyAuthenticationHandler(
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     private const string AuthHeader = "ApiKey";
-    private readonly string _validApiKey = Env.GetString("API_KEY");
+    private readonly string _validApiKey = Environment.GetEnvironmentVariable("API_KEY")!;
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
